@@ -1,6 +1,6 @@
 import React from "react";
 import axios from 'axios';
-
+import { useDispatch, useSelector } from 'react-redux';
 
 
 import Sort from '../components/Sort';
@@ -8,14 +8,32 @@ import Categories from '../components/Categories';
 import PizzaBlock from '../components/PizzaBlock';
 import Skeleton from '../components/PizzaBlock/Skeleton';
 import Pagination from '../components/Pagination';
+import { SearchContext } from '../App'
 
-function Home({ searchValue }) {
+import { setCategoryId, setCurrentPage } from "../redux/slices/filterSlice";
 
-	const [items, setItems] = React.useState([]);
-	const [currentPage, setCurrentPage] = React.useState(1)
-	const [isLoading, setIsLoading] = React.useState(true);
-	const [categoryId, setCategoryId] = React.useState(0);
-	const [sortType, setSortType] = React.useState({ name: 'популярности', sortProperty: 'rating' });
+function Home() {
+
+	const dispatch = useDispatch();
+	const { categoryId, sort, currentPage } = useSelector(state => state.filter); // сортировка редаксом
+
+
+	const { searchValue } = React.useContext(SearchContext);
+
+	const [items, setItems] = React.useState([]); // пиццы 
+	// const [currentPage, setCurrentPage] = React.useState(1); // пагинация
+	const [isLoading, setIsLoading] = React.useState(true); // скелетон
+
+
+	const onClickCategory = (id) => {
+		dispatch(setCategoryId(id));
+	};
+
+	const onChangePage = number => {
+		dispatch(setCurrentPage(number));
+	};
+
+
 
 
 
@@ -29,20 +47,20 @@ function Home({ searchValue }) {
 		const search = searchValue ? `&search=${searchValue}` : '';
 
 
-		axios.get(`https://6405c88aeed195a99f8c8869.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sortType.sortProperty}&order=asc${search}`).then((res) => {
+		axios.get(`https://6405c88aeed195a99f8c8869.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sort.sortProperty}&order=asc${search}`).then((res) => {
 			setItems(res.data);
 			setIsLoading(false);
 		});
 		window.scrollTo(0, 0);
-	}, [categoryId, sortType, searchValue, currentPage]);
+	}, [categoryId, sort.sortProperty, searchValue, currentPage]);
 
 	// console.log(searchValue)
 
 	return (
 		<>
 			<div className="content__top">
-				<Categories value={categoryId} onClickCategory={(id) => setCategoryId(id)} />
-				<Sort value={sortType} onClickSort={(id) => setSortType(id)} />
+				<Categories value={categoryId} onClickCategory={onClickCategory} />
+				<Sort />
 			</div>
 			<h2 className="content__title">Все пиццы</h2>
 			<div className="content__items">
@@ -50,21 +68,9 @@ function Home({ searchValue }) {
 					? skeleton
 					: pizzas}
 			</div>
-			<Pagination onChangePage={(number) => setCurrentPage(number)} />
+			<Pagination currentPage={currentPage} onChangePage={onChangePage} />
 		</>
 	)
 };
 
 export default Home;
-
-
-// items.map((obj) => <PizzaBlock key={obj.id} {...obj} />)
-
-// .filter((obj) => {
-// 	// фильтрация пицц
-// 	if (obj.title.toLowerCase().includes(searchValue.toLowerCase())) {
-// 		return true;
-// 	}
-
-// 	return false;
-// })
