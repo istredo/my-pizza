@@ -1,7 +1,8 @@
 import React from "react";
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-
+// import qs from 'qs';
+// import { useNavigate } from 'react-router-dom';
 
 import Sort from '../components/Sort';
 import Categories from '../components/Categories';
@@ -15,6 +16,7 @@ import { setCategoryId, setCurrentPage } from "../redux/slices/filterSlice";
 function Home() {
 
 	const dispatch = useDispatch();
+	// const navigate = useNavigate();
 	const { categoryId, sort, currentPage } = useSelector(state => state.filter); // сортировка редаксом
 
 
@@ -33,7 +35,16 @@ function Home() {
 		dispatch(setCurrentPage(number));
 	};
 
+	// React.useEffect(() => {
+	// 	if (window.location.search) {
+	// 		const params = qs.parse(window.location.search.substring(1));
 
+	// 		const sort = sortList
+	// 		dispatch(
+	// 			setFilters()
+	// 		)
+	// 	}
+	// }, []);
 
 
 
@@ -46,7 +57,6 @@ function Home() {
 		const category = categoryId > 0 ? `category=${categoryId}` : '';
 		const search = searchValue ? `&search=${searchValue}` : '';
 
-
 		axios.get(`https://6405c88aeed195a99f8c8869.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sort.sortProperty}&order=asc${search}`).then((res) => {
 			setItems(res.data);
 			setIsLoading(false);
@@ -54,7 +64,15 @@ function Home() {
 		window.scrollTo(0, 0);
 	}, [categoryId, sort.sortProperty, searchValue, currentPage]);
 
-	// console.log(searchValue)
+
+	// React.useEffect(() => {
+	// 	const queryString = qs.stringify({
+	// 		sortProperty: sort.sortProperty,
+	// 		categoryId,
+	// 		currentPage,
+	// 	});
+	// 	navigate(`?${queryString}`)
+	// }, [categoryId, sort.sortProperty, searchValue, currentPage]);
 
 	return (
 		<>

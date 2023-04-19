@@ -5,18 +5,30 @@ import { setSort } from '../redux/slices/filterSlice';
 
 function Sort() {
 	const dispatch = useDispatch();
+	const sortRef = React.useRef(); // скрытие попапа при клике в иную область
 	const sort = useSelector(state => state.filter.sort);
 
 	const [visible, setVisible] = React.useState(false);
-	const list = [{ name: 'популярности', sortProperty: 'rating' }, { name: 'цене', sortProperty: 'price' }, { name: 'алфавиту', sortProperty: 'title' }];
+	const sortList = [{ name: 'популярности', sortProperty: 'rating' }, { name: 'цене', sortProperty: 'price' }, { name: 'алфавиту', sortProperty: 'title' }];
 
 	const onChangeSort = (obj) => {
 		dispatch(setSort(obj))
 		setVisible(false)
 	}
+	React.useEffect(() => {
+		const handeClickOutside = (event) => {
+			if (!event.composedPath().includes(sortRef.current)) {
+				setVisible(false);
+				// console.log('клац')
+			}
+		};
 
+		document.body.addEventListener('click', handeClickOutside);
+
+		return () => document.body.removeEventListener('click', handeClickOutside);
+	}, []);
 	return (
-		<div className="sort">
+		<div ref={sortRef} className="sort">
 			<div className="sort__label">
 				<svg
 					width="10"
@@ -35,7 +47,7 @@ function Sort() {
 			</div>
 			{visible && (<div className="sort__popup">
 				<ul>
-					{list.map((obj, i) => (
+					{sortList.map((obj, i) => (
 						<li key={i} onClick={() => onChangeSort(obj)} className={sort.sortProperty === obj.sortProperty ? 'active' : ''}>{obj.name}</li>
 					))}
 				</ul>
