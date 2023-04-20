@@ -17,15 +17,15 @@ function Home() {
 
 	const dispatch = useDispatch();
 	// const navigate = useNavigate();
+
 	const { categoryId, sort, currentPage } = useSelector(state => state.filter); // сортировка редаксом
 	const { items, status } = useSelector(selectPizzaData);
-
 	const { searchValue } = React.useContext(SearchContext);
 
-	// const [items, setItems] = React.useState([]); // пиццы 
+
 	// const [currentPage, setCurrentPage] = React.useState(1); // пагинация
 	// const [isLoading, setIsLoading] = React.useState(true); // скелетон
-
+	// const [items, setItems] = React.useState([]); // пиццы 
 
 	const onClickCategory = (id) => {
 		dispatch(setCategoryId(id));
@@ -35,35 +35,12 @@ function Home() {
 		dispatch(setCurrentPage(number));
 	};
 
+
+	//-------------Бизнес логика перенесена в pizzaSlice------//
 	React.useEffect(() => {
 		getPizzas();
-	}, [categoryId, sort.sortProperty, searchValue, currentPage]);
+	}, [categoryId, sort, searchValue, currentPage]);
 
-
-
-	const pizzas = items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
-	const skeleton = [...new Array(8)].map((_, index) => <Skeleton key={index} />);
-
-	// const getPizzas = async () => {
-
-
-	// 	const category = categoryId > 0 ? `category=${categoryId}` : '';
-	// 	const search = searchValue ? `&search=${searchValue}` : '';
-
-
-	// 	dispatch(
-	// 		fetchPizzas({
-	// 			category,
-	// 			search,
-	// 			currentPage,
-	// 		}),
-	// 	);
-	// 	console.log('pupum')
-
-
-	// 	window.scrollTo(0, 0);
-
-	// };
 
 	const getPizzas = async () => {
 		const category = categoryId > 0 ? `category=${categoryId}` : '';
@@ -71,6 +48,7 @@ function Home() {
 
 		dispatch(
 			fetchPizzas({
+				sort,
 				category,
 				search,
 				currentPage,
@@ -79,7 +57,7 @@ function Home() {
 
 		window.scrollTo(0, 0);
 	};
-
+	//----------------------------------------------------------//
 
 
 	// React.useEffect(() => {
@@ -90,6 +68,8 @@ function Home() {
 	// 	});
 	// 	navigate(`?${queryString}`)
 	// }, [categoryId, sort.sortProperty, searchValue, currentPage]);
+	const pizzas = items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
+	const skeleton = [...new Array(8)].map((_, index) => <Skeleton key={index} />);
 
 	return (
 		<>
@@ -99,9 +79,7 @@ function Home() {
 			</div>
 			<h2 className="content__title">Все пиццы</h2>
 			<div className="content__items">
-				{status === 'loading'
-					? skeleton
-					: pizzas}
+				{status === 'loading' ? skeleton : pizzas}
 			</div>
 			<Pagination currentPage={currentPage} onChangePage={onChangePage} />
 		</>
