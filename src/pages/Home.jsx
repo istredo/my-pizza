@@ -1,5 +1,4 @@
 import React from "react";
-import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 // import qs from 'qs';
 // import { useNavigate } from 'react-router-dom';
@@ -12,19 +11,20 @@ import Pagination from '../components/Pagination';
 import { SearchContext } from '../App'
 
 import { setCategoryId, setCurrentPage } from "../redux/slices/filterSlice";
+import { fetchPizzas, selectPizzaData } from '../redux/slices/pizzaSlice';
 
 function Home() {
 
 	const dispatch = useDispatch();
 	// const navigate = useNavigate();
 	const { categoryId, sort, currentPage } = useSelector(state => state.filter); // сортировка редаксом
-
+	const { items, status } = useSelector(selectPizzaData);
 
 	const { searchValue } = React.useContext(SearchContext);
 
-	const [items, setItems] = React.useState([]); // пиццы 
+	// const [items, setItems] = React.useState([]); // пиццы 
 	// const [currentPage, setCurrentPage] = React.useState(1); // пагинация
-	const [isLoading, setIsLoading] = React.useState(true); // скелетон
+	// const [isLoading, setIsLoading] = React.useState(true); // скелетон
 
 
 	const onClickCategory = (id) => {
@@ -35,34 +35,51 @@ function Home() {
 		dispatch(setCurrentPage(number));
 	};
 
-	// React.useEffect(() => {
-	// 	if (window.location.search) {
-	// 		const params = qs.parse(window.location.search.substring(1));
-
-	// 		const sort = sortList
-	// 		dispatch(
-	// 			setFilters()
-	// 		)
-	// 	}
-	// }, []);
+	React.useEffect(() => {
+		getPizzas();
+	}, [categoryId, sort.sortProperty, searchValue, currentPage]);
 
 
 
 	const pizzas = items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
 	const skeleton = [...new Array(8)].map((_, index) => <Skeleton key={index} />);
 
-	React.useEffect(() => {
-		setIsLoading(true);
+	// const getPizzas = async () => {
 
+
+	// 	const category = categoryId > 0 ? `category=${categoryId}` : '';
+	// 	const search = searchValue ? `&search=${searchValue}` : '';
+
+
+	// 	dispatch(
+	// 		fetchPizzas({
+	// 			category,
+	// 			search,
+	// 			currentPage,
+	// 		}),
+	// 	);
+	// 	console.log('pupum')
+
+
+	// 	window.scrollTo(0, 0);
+
+	// };
+
+	const getPizzas = async () => {
 		const category = categoryId > 0 ? `category=${categoryId}` : '';
 		const search = searchValue ? `&search=${searchValue}` : '';
 
-		axios.get(`https://6405c88aeed195a99f8c8869.mockapi.io/items?page=${currentPage}&limit=4&${category}&sortBy=${sort.sortProperty}&order=asc${search}`).then((res) => {
-			setItems(res.data);
-			setIsLoading(false);
-		});
+		dispatch(
+			fetchPizzas({
+				category,
+				search,
+				currentPage,
+			}),
+		);
+
 		window.scrollTo(0, 0);
-	}, [categoryId, sort.sortProperty, searchValue, currentPage]);
+	};
+
 
 
 	// React.useEffect(() => {
@@ -82,7 +99,7 @@ function Home() {
 			</div>
 			<h2 className="content__title">Все пиццы</h2>
 			<div className="content__items">
-				{isLoading
+				{status === 'loading'
 					? skeleton
 					: pizzas}
 			</div>
