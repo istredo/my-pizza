@@ -1,7 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-
+import logoSvg from '../assets/img/pizza-logo.svg'
 import Search from './Search';
+
+
+
+// const pizzas = items.map((obj) => <Link key={obj.id}to={`/pizza/${obj.id}`}><PizzaBlock  {...obj} /></Link>);
+
 
 
 function Header() {
@@ -12,7 +17,7 @@ function Header() {
 		<div className="header">
 			<div className="container">
 				<Link to='/' className="header__logo">
-					<img width="38" src="./img/pizza-logo.svg" alt="Pizza logo" />
+					<img width="38" src={logoSvg} alt="Pizza logo" />
 					<div>
 						<h1>React Pizza</h1>
 						<p>Самая вкусная пицца во вселенной</p>
